@@ -1,18 +1,20 @@
-// Entry for news-image-20261124: the picture of Tuesday 24 November 2026.
+// news-image-20261124 entry point.
 //
-// The finished picture is entry.png, drawn by generate.py from the
-// day's verified headlines. The grader runs this program with no
-// network on Node 22 (standard library only), so all it does is
-// deliver the picture: copy entry.png into the output directory
-// under the same name. The gate accepts it as a whole PNG of at
-// most 1 MiB and 1024 by 1024 pixels.
+// The picture itself is drawn ahead of time by generate.py and
+// stored in this repository as entry.png. The judging harness runs
+// this file on Node 22 with no network access, so its whole job is
+// to place that picture where the harness looks for it:
+// $MAKEFUN_OUTPUT_DIR/entry.png (falling back to /output).
 //
-// Local check:
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+// Try it locally:
+//   MAKEFUN_OUTPUT_DIR=/tmp/out node main.ts
 
-import { copyFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const entry = new URL("entry.png", import.meta.url);
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
-copyFileSync(entry, join(outDir, "entry.png"));
+const here = dirname(fileURLToPath(import.meta.url));
+const targetDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+
+mkdirSync(targetDir, { recursive: true });
+writeFileSync(join(targetDir, "entry.png"), readFileSync(join(here, "entry.png")));
